@@ -3,3 +3,5 @@ token.json
 .env
 *.xlsx
 __pycache__/
+fund_tracker.log
+pdfs/

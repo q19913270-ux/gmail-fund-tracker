@@ -7,6 +7,7 @@ import base64
 import logging
 import os
 import re
+import sys
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -374,14 +375,19 @@ def main():
     logger.info("找到 %d 個 PDF 附件", len(pdfs))
 
     records = []
+    skipped = 0
     for received_date, pdf_bytes in pdfs:
         record = parse_pdf(pdf_bytes, received_date, ID_NUMBER)
         if record:
             records.append(record)
+        else:
+            skipped += 1
+
+    logger.info("解析結果：成功 %d 筆，略過 %d 筆（共抓取 %d 個 PDF）", len(records), skipped, len(pdfs))
 
     if not records:
-        logger.warning("沒有成功解析的記錄")
-        return
+        logger.error("所有 PDF 均解析失敗，未產生任何記錄")
+        sys.exit(1)
 
     save_excel(records, OUTPUT_FILE)
 
